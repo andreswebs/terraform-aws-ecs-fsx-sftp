@@ -1,0 +1,86 @@
+[
+  {
+    "name": "${config_container_name}",
+    "image": "${config_container_image}",
+    "secrets": ${config_secrets},
+    "command": ${config_command},
+    "memoryReservation": 64,
+    "essential": false,
+    "linuxParameters": {
+      "initProcessEnabled": true
+    },
+    "mountPoints": [
+      %{ for user in sftp_users ~}
+      {
+        "sourceVolume": "${volume_name_user}-${user}",
+        "containerPath": "/${volume_name_user}-${user}"
+      },
+      %{ endfor ~}
+      {
+        "sourceVolume": "${volume_name_host}",
+        "containerPath": "/${volume_name_host}"
+      },
+      {
+        "sourceVolume": "${volume_name_config}",
+        "containerPath": "/${volume_name_config}"
+      },
+      {
+        "sourceVolume": "${volume_name_scripts}",
+        "containerPath": "/${volume_name_scripts}"
+      }
+    ]
+  },
+  {
+    "name": "${main_container_name}",
+    "image": "${main_container_image}",
+    "memoryReservation": 256,
+    "essential": true,
+    "linuxParameters": {
+      "initProcessEnabled": true
+    },
+    "portMappings": [
+      {
+        "containerPort": ${task_port},
+        "hostPort": ${host_port},
+        "protocol": "tcp"
+      }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group_name}",
+        "awslogs-region": "${aws_region}"
+      }
+    },
+    "mountPoints": [
+      %{ for user in sftp_users ~}
+      {
+        "sourceVolume": "${volume_name_storage}-${user}",
+        "containerPath": "/home/${user}/storage"
+      },
+      {
+        "sourceVolume": "${volume_name_user}-${user}",
+        "containerPath": "/home/${user}/.ssh/keys"
+      },
+      %{ endfor ~}
+      {
+        "sourceVolume": "${volume_name_host}",
+        "containerPath": "/root/${volume_name_host}"
+      },
+      {
+        "sourceVolume": "${volume_name_config}",
+        "containerPath": "/etc/sftp"
+      },
+      {
+        "sourceVolume": "${volume_name_scripts}",
+        "containerPath": "/etc/sftp.d"
+      }
+    ],
+    "dependsOn": [
+      {
+        "containerName": "${config_container_name}",
+        "condition": "SUCCESS"
+      }
+    ]
+  }
+]
