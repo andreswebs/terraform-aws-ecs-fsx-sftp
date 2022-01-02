@@ -33,7 +33,9 @@ module "sftp" {
 | <a name="input_instance_profile"></a> [instance\_profile](#input\_instance\_profile) | ECS container-instance IAM profile name; must be an existing instance profile | `string` | `"ecs-instance"` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | ECS container-instance type | `string` | `"t3a.micro"` | no |
 | <a name="input_log_retention_in_days"></a> [log\_retention\_in\_days](#input\_log\_retention\_in\_days) | CloudWatch Logs retention in days | `number` | `30` | no |
+| <a name="input_sftp_config_container_image"></a> [sftp\_config\_container\_image](#input\_sftp\_config\_container\_image) | Config container image | `string` | `"bash:latest"` | no |
 | <a name="input_sftp_host_port"></a> [sftp\_host\_port](#input\_sftp\_host\_port) | Host port for SFTP access | `number` | `2222` | no |
+| <a name="input_sftp_main_container_image"></a> [sftp\_main\_container\_image](#input\_sftp\_main\_container\_image) | Main SFTP container image | `string` | `"atmoz/sftp:latest"` | no |
 | <a name="input_sftp_ssm_param_config_users_conf"></a> [sftp\_ssm\_param\_config\_users\_conf](#input\_sftp\_ssm\_param\_config\_users\_conf) | SSM param path for the `/etc/sftp/users.conf` file | `string` | `"/config/users-conf"` | no |
 | <a name="input_sftp_ssm_param_host_priv_key"></a> [sftp\_ssm\_param\_host\_priv\_key](#input\_sftp\_ssm\_param\_host\_priv\_key) | SSM param path for the host private key | `string` | `"/host/private-key"` | no |
 | <a name="input_sftp_ssm_param_host_pub_key"></a> [sftp\_ssm\_param\_host\_pub\_key](#input\_sftp\_ssm\_param\_host\_pub\_key) | SSM param path for the host public key | `string` | `"/host/public-key"` | no |

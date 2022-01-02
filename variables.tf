@@ -192,3 +192,15 @@ variable "sftp_volume_name_scripts" {
   default     = "sftp-scripts"
   description = "SFTP scripts-volume name"
 }
+
+variable "sftp_main_container_image" {
+  type        = string
+  default     = "atmoz/sftp:latest"
+  description = "Main SFTP container image"
+}
+
+variable "sftp_config_container_image" {
+  type        = string
+  default     = "bash:latest"
+  description = "Config container image"
+}

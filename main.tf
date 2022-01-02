@@ -210,9 +210,9 @@ locals {
     aws_region             = data.aws_region.current.name
     log_group_name         = aws_cloudwatch_log_group.this.name
     main_container_name    = "sftp"
-    main_container_image   = "public.ecr.aws/andreswebs/sftp"
+    main_container_image   = var.sftp_main_container_image
     config_container_name  = "sftp-config"
-    config_container_image = "public.ecr.aws/andreswebs/bash"
+    config_container_image = var.sftp_config_container_image
     config_secrets         = local.sftp_config_secrets
     config_command         = local.sftp_config_command
     volume_name_storage    = var.sftp_volume_name_storage
