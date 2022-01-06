@@ -11,9 +11,9 @@ The parameter names are used as input for the Terraform configurations, through 
 Parameter names are built from TF vars in the form:
 `<prefix><suffix>[<sftp user>]`
 
-Prefix and suffix values must start with `/` and must not end with `/`; or can be set to an empty string.
+Prefix and suffix values must start with `/` and must not end with `/`. The prefix can be set to an empty string.
 
-The prefix is given by the `sftp_ssm_param_prefix` var (default: `/sftp`).
+The prefix is given by the `sftp_ssm_param_prefix` TF var (default: `/sftp`).
 
 The suffixes are:
 
