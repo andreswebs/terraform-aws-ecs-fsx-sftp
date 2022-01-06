@@ -4,13 +4,17 @@ Deploys an AWS ECS cluster running an SFTP service as a daemon.
 
 This is a proof-of-concept for how to use an AWS FSx Windows file share with multiple user folders mounted in ECS-optimized Amazon Linux 2 instances.
 
-This module deploys a _subset_ of the resources described in the diagram below. Namely, it deploys the ECS cluster and SFTP daemon containers in the following architecture:
+The AWS EC2 AMIs must already have the filesystem mounts for each user, with the correct permissions. The needed configuration is described in the AWS documentation for using FSx Windows file shares on Linux:
 
-![Example SFTP service](docs/img/ecs-fsx-sftp.svg)
+<https://docs.aws.amazon.com/fsx/latest/WindowsGuide/using-file-shares.html#map-shares-linux>
 
 Example code for the AWS EC2 AMI to be used can be found in the following repository:
 
 <https://github.com/andreswebs/ecs-linux-fsx-ami>
+
+This module deploys a _subset_ of the resources described in the diagram below. Namely, it deploys the ECS cluster and SFTP daemon containers in the following architecture:
+
+![Example SFTP service](docs/img/ecs-fsx-sftp.svg)
 
 [//]: # (BEGIN_TF_DOCS)
 
@@ -78,9 +82,9 @@ module "sftp" {
 
 | Name | Description |
 |------|-------------|
-| <a name="output_ecs_cluster"></a> [ecs\_cluster](#output\_ecs\_cluster) | n/a |
-| <a name="output_launch_template"></a> [launch\_template](#output\_launch\_template) | n/a |
-| <a name="output_task_definition"></a> [task\_definition](#output\_task\_definition) | n/a |
+| <a name="output_ecs_cluster"></a> [ecs\_cluster](#output\_ecs\_cluster) | The aws\_ecs\_cluster resource |
+| <a name="output_launch_template"></a> [launch\_template](#output\_launch\_template) | The aws\_launch\_template resource |
+| <a name="output_task_definition"></a> [task\_definition](#output\_task\_definition) | The aws\_ecs\_task\_definition\_resource |
 
 ## Providers
 
@@ -125,3 +129,7 @@ module "sftp" {
 ## License
 
 This project is licensed under the [Unlicense](UNLICENSE.md).
+
+## References
+
+
