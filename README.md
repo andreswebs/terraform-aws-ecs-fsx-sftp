@@ -14,11 +14,11 @@ Example code for the AWS EC2 AMI to be used can be found in the following reposi
 
 This module deploys a _subset_ of the resources described in the diagram below. Namely, it deploys the ECS cluster and SFTP daemon containers in the following architecture:
 
-![Example SFTP service](docs/img/ecs-fsx-sftp.svg)
+![Example SFTP service](https://raw.githubusercontent.com/andreswebs/terraform-aws-ecs-fsx-sftp/main/docs/img/ecs-fsx-sftp.svg)
 
 The SFTP server configuration is done via AWS SSM parameters. Parameters must be created separately with the correct values in the AWS account. 
 
-Refer to the [documentation](docs/sftp-configuration.md) for how to pass the parameter names into this module.
+Refer to the [documentation](https://github.com/andreswebs/terraform-aws-ecs-fsx-sftp/blob/main/docs/sftp-configuration.md) for how to pass the parameter names into this module.
 
 [//]: # (BEGIN_TF_DOCS)
 
