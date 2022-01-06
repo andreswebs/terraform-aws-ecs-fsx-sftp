@@ -6,7 +6,7 @@ created externally for SFTP users and for the SFTP host, encoded as base64 value
 
 The SSM parameters must be created separately, with the correct values.
 
-The parameter names are used as input for the Terraform configurations, through TF vars.
+The parameter names are used as input for the Terraform configurations, through TF vars (see `variables.tf`).
 
 Parameter names are built from TF vars in the form:
 `<prefix><suffix>[<sftp user>]`
