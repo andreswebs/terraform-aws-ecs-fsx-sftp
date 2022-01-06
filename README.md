@@ -1,7 +1,19 @@
 # terraform-aws-ecs-fsx-sftp
 
+Deploys an AWS ECS cluster running an SFTP service as a daemon.
+
+This is a proof-of-concept for how to use an AWS FSx Windows file share with multiple user folders mounted in ECS-optimized Amazon Linux 2 instances.
+
+This module deploys a _subset_ of the resources described in the diagram below. Namely, it deploys the ECS cluster and SFTP daemon containers in the following architecture:
+
+![Example SFTP service](docs/img/ecs-fsx-sftp.svg)
+
+Example code for the AWS EC2 AMI to be used can be found in the following repository:
+
+<https://github.com/andreswebs/ecs-linux-fsx-ami>
+
 [//]: # (BEGIN_TF_DOCS)
-Deploys an ECS cluster running an SFTP service as a daemon.
+
 
 ## Usage
 

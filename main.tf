@@ -1,7 +1,3 @@
-/**
-* Deploys an ECS cluster running an SFTP service as a daemon.
-*/
-
 data "aws_partition" "current" {}
 data "aws_region" "current" {}
 data "aws_caller_identity" "current" {}
