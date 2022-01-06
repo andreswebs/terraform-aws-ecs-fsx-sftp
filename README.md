@@ -18,7 +18,7 @@ This module deploys a _subset_ of the resources described in the diagram below. 
 
 The SFTP server configuration is done via AWS SSM parameters. Parameters must be created separately with the correct values in the AWS account. 
 
-Refer to the [docs/sftp-configuration.md](documentation) for how to pass the parameter names into this module.
+Refer to the [documentation](docs/sftp-configuration.md) for how to pass the parameter names into this module.
 
 [//]: # (BEGIN_TF_DOCS)
 
