@@ -16,6 +16,8 @@ This module deploys a _subset_ of the resources described in the diagram below. 
 
 ![Example SFTP service](docs/img/ecs-fsx-sftp.svg)
 
+The SFTP server configuration is done via AWS SSM parameters. Parameters must be created separately with the correct values in the AWS account. Refer to the [docs/sftp-configuration.md](documentation) for how to pass the parameter names into this module.
+
 [//]: # (BEGIN_TF_DOCS)
 
 
