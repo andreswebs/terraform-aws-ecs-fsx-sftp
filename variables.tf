@@ -137,6 +137,7 @@ variable "sftp_uid_start" {
 variable "sftp_users" {
   type        = string
   description = "Comma-separated list of SFTP users to add"
+  default     = "sftp-user"
 }
 
 variable "sftp_volume_name_storage" {

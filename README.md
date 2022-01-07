@@ -16,9 +16,17 @@ This module deploys a _subset_ of the resources described in the diagram below. 
 
 ![Example SFTP service](https://raw.githubusercontent.com/andreswebs/terraform-aws-ecs-fsx-sftp/main/docs/img/ecs-fsx-sftp.svg)
 
-The SFTP server configuration is done via AWS SSM parameters. Parameters must be created separately with the correct values in the AWS account. 
+## Configuration
 
-Refer to the [documentation](https://github.com/andreswebs/terraform-aws-ecs-fsx-sftp/blob/main/docs/sftp-configuration.md) for how to pass the parameter names into this module.
+The SFTP server configuration and cryptographic keys injection is done via AWS SSM parameters. Parameters must be created separately with the correct SSH keys and configuration values in the AWS account. 
+
+Refer to the [documentation](https://github.com/andreswebs/terraform-aws-ecs-fsx-sftp/blob/main/docs/sftp-configuration.md) for how to pass the SSM parameter names into this module.
+
+The `sftp_users` argument _must match_ the Unix usernames and UIDs configured in the EC2 AMI. The [example AMI](https://github.com/andreswebs/ecs-linux-fsx-ami) sets the correct mounts and permissions, receiving the same arguments as this module.
+
+Defaults for both are also the same, creating a single user named `sftp-user` with UID `1001`.
+
+The values in the example below will create 3 users with UIDs `1001`, `1002`, `1003`, respectively.
 
 [//]: # (BEGIN_TF_DOCS)
 
@@ -35,7 +43,8 @@ module "sftp" {
   subnet_ids     = var.subnet_ids
   ami_id         = var.ami_id
   cidr_whitelist = [var.corp_vpn]
-  sftp_users     = "user-1,user-2,user-3"
+  sftp_users     = "user-1,user-2,user-3" ## <--- This list must match in the pre-configured EC2 AMI
+  sftp_uid_start = "1001"  ## <--- This UID must match in the pre-configured EC2 AMI
 }
 ```
 
@@ -63,7 +72,7 @@ module "sftp" {
 | <a name="input_sftp_ssm_param_user_pub_key"></a> [sftp\_ssm\_param\_user\_pub\_key](#input\_sftp\_ssm\_param\_user\_pub\_key) | SSM param path for users' public keys | `string` | `"/user/public-key"` | no |
 | <a name="input_sftp_task_port"></a> [sftp\_task\_port](#input\_sftp\_task\_port) | ECS task port for SFTP access | `number` | `22` | no |
 | <a name="input_sftp_uid_start"></a> [sftp\_uid\_start](#input\_sftp\_uid\_start) | Starting Unix UID for SFTP users; will be incremented by 1 for each extra user | `number` | `1001` | no |
-| <a name="input_sftp_users"></a> [sftp\_users](#input\_sftp\_users) | Comma-separated list of SFTP users to add | `string` | n/a | yes |
+| <a name="input_sftp_users"></a> [sftp\_users](#input\_sftp\_users) | Comma-separated list of SFTP users to add | `string` | `"sftp-user"` | no |
 | <a name="input_sftp_volume_name_config"></a> [sftp\_volume\_name\_config](#input\_sftp\_volume\_name\_config) | SFTP config-volume name | `string` | `"sftp-config"` | no |
 | <a name="input_sftp_volume_name_host"></a> [sftp\_volume\_name\_host](#input\_sftp\_volume\_name\_host) | SFTP host-volume name | `string` | `"sftp-host"` | no |
 | <a name="input_sftp_volume_name_scripts"></a> [sftp\_volume\_name\_scripts](#input\_sftp\_volume\_name\_scripts) | SFTP scripts-volume name | `string` | `"sftp-scripts"` | no |
