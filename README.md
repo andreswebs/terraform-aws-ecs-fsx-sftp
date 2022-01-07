@@ -4,9 +4,7 @@ Deploys an AWS ECS cluster running an SFTP service as a daemon.
 
 This is a proof-of-concept for how to use an AWS FSx Windows file share with multiple user folders mounted in ECS-optimized Amazon Linux 2 instances for high-availability.
 
-The AWS EC2 AMIs must already have the filesystem mounts for each user, with the correct permissions. The needed configuration is described in the AWS documentation for using FSx Windows file shares on Linux:
-
-<https://docs.aws.amazon.com/fsx/latest/WindowsGuide/using-file-shares.html#map-shares-linux>
+The AWS EC2 AMIs must already have the filesystem mounts for each user, with the correct permissions. The needed configuration is described in the AWS documentation for using [FSx Windows file shares on Linux](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/using-file-shares.html#map-shares-linux).
 
 Example code for the AWS EC2 AMI to be used can be found in the following repository:
 
