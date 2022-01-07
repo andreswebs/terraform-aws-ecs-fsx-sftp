@@ -141,6 +141,6 @@ module "sftp" {
 
 This project is licensed under the [Unlicense](UNLICENSE.md).
 
-## References
+## Acknowledgements
 
-
+This project is based on the public [docker.io/atmoz/sftp](https://hub.docker.com/r/atmoz/sftp) image.
