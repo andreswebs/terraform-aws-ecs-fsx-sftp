@@ -4,15 +4,26 @@ Deploys an AWS ECS cluster running an SFTP service as a daemon.
 
 This is a proof-of-concept for how to deploy a highly-available fleet of SFTP servers with an AWS FSx Windows file share, with multiple user folders from the share mounted in ECS-optimized Amazon Linux 2 instances.
 
-The AWS EC2 AMIs must already have the filesystem mounts for each user, with the correct permissions. The needed configuration is described in the AWS documentation for using [FSx Windows file shares on Linux](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/using-file-shares.html#map-shares-linux).
+This module deploys a _subset_ of the resources described in the diagram below. Namely, it deploys the ECS cluster and SFTP daemon containers in the following architecture:
+
+![Example SFTP service](https://raw.githubusercontent.com/andreswebs/terraform-aws-ecs-fsx-sftp/main/docs/img/ecs-fsx-sftp.svg)
+
+## Pre-requisites
+
+### FSx
+
+The AWS FSx for Windows file system must be configured with access for a domain user with permissions to read and write to the file share. This user's credentials will be stored in the AMI.
+
+An example module to deploy FSx with Active Directory can be found in the Terraform registry: [andreswebs/ad-fsx/aws](https://registry.terraform.io/modules/andreswebs/ad-fsx/aws/latest).
+
+### AMI
+
+The AWS EC2 AMIs must have the credentials for an AD user with access to the file share. It must also have the filesystem mounts for each SFTP user, with the correct Unix permissions for each user. The needed configuration is described in the AWS documentation for using [FSx Windows file shares on Linux](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/using-file-shares.html#map-shares-linux).
 
 Example code for the AWS EC2 AMI to be used can be found in the following repository:
 
 <https://github.com/andreswebs/ecs-linux-fsx-ami>
 
-This module deploys a _subset_ of the resources described in the diagram below. Namely, it deploys the ECS cluster and SFTP daemon containers in the following architecture:
-
-![Example SFTP service](https://raw.githubusercontent.com/andreswebs/terraform-aws-ecs-fsx-sftp/main/docs/img/ecs-fsx-sftp.svg)
 
 ## Configuration
 
