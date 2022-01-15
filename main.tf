@@ -25,10 +25,39 @@ locals {
     aws_security_group.sftp.id
   ]
 
-  ami_id                = var.ami_id == null || var.ami_id == "" ? data.aws_ami.ecs_ami_latest.id : var.ami_id
-  create_execution_role = var.execution_role_arn == "" || var.execution_role_arn == null
-  create_task_role      = var.task_role_arn == "" || var.task_role_arn == null
-  create_iam            = local.create_execution_role || local.create_task_role
+  ami_id = var.ami_id == null || var.ami_id == "" ? data.aws_ami.ecs_ami_latest.id : var.ami_id
+}
+
+locals {
+
+  fsx_ssm_param_domain   = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_domain}"
+  fsx_ssm_param_username = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_username}"
+  fsx_ssm_param_password = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_password}"
+
+  fsx_config_command = templatefile("${path.module}/tpl/fsx-config.cmd.tftpl", {
+    fsx_mount_point = var.fsx_mount_point
+    sftp_users      = local.sftp_users
+    sftp_uid_start  = var.sftp_uid_start
+  })
+
+  fsx_get_creds_command = templatefile("${path.module}/tpl/fsx-get-creds.cmd.tftpl", {
+    fsx_creds_path         = var.fsx_creds_path
+    fsx_ssm_param_domain   = local.fsx_ssm_param_domain
+    fsx_ssm_param_username = local.fsx_ssm_param_username
+    fsx_ssm_param_password = local.fsx_ssm_param_password
+  })
+
+  fsx_mount_command = templatefile("${path.module}/tpl/fsx-mount.cmd.tftpl", {
+    sftp_users            = local.sftp_users
+    sftp_uid_start        = var.sftp_uid_start
+    fsx_ip_address        = var.fsx_ip_address
+    fsx_file_share        = var.fsx_file_share
+    fsx_mount_point       = var.fsx_mount_point
+    fsx_smb_version       = var.fsx_smb_version
+    fsx_cifs_max_buf_size = var.fsx_cifs_max_buf_size
+    fsx_creds_path        = var.fsx_creds_path
+  })
+
 }
 
 resource "aws_launch_template" "this" {
@@ -53,7 +82,10 @@ resource "aws_launch_template" "this" {
   }
 
   user_data = base64encode(templatefile("${path.module}/tpl/userdata.tftpl", {
-    cluster_name = var.cluster_name
+    cluster_name          = var.cluster_name
+    fsx_config_command    = local.fsx_config_command
+    fsx_get_creds_command = local.fsx_get_creds_command
+    fsx_mount_command     = local.fsx_mount_command
   }))
 
   tag_specifications {
@@ -69,13 +101,14 @@ resource "aws_launch_template" "this" {
 }
 
 resource "aws_autoscaling_group" "this" {
+
   name = "ecs-${var.cluster_name}-asg"
 
   vpc_zone_identifier = var.subnet_ids
 
-  desired_capacity = 2
-  max_size         = 4
-  min_size         = 1
+  desired_capacity = var.cluster_desired_capacity
+  max_size         = var.cluster_max_size
+  min_size         = var.cluster_min_size
 
   launch_template {
     id      = aws_launch_template.this.id
@@ -169,24 +202,9 @@ locals {
   ssm_param_arn_host_priv_key = "${local.ssm_param_arn_prefix}${var.sftp_ssm_param_host_priv_key}"
 }
 
-module "iam" {
-  count                           = local.create_iam ? 1 : 0
-  source                          = "./modules/iam"
-  task_role_name                  = var.task_role_name
-  execution_role_name             = var.execution_role_name
-  ssm_param_arn_user_pub_key      = local.ssm_param_arn_user_pub_key
-  ssm_param_arn_host_pub_key      = local.ssm_param_arn_host_pub_key
-  ssm_param_arn_host_priv_key     = local.ssm_param_arn_host_priv_key
-  ssm_param_arn_config_users_conf = aws_ssm_parameter.sftp_config_users_conf.arn
-  create_execution_role           = local.create_execution_role
-  create_task_role                = local.create_task_role
-}
-
 locals {
-  execution_role_arn = local.create_execution_role ? module.iam[0].role.ecs_execution.arn : var.execution_role_arn
-  task_role_arn      = local.create_task_role ? module.iam[0].role.ecs_task.arn : var.task_role_arn
 
-  sftp_config_secrets = templatefile("${path.module}/tpl/config-secrets.json.tftpl", {
+  sftp_config_secrets = templatefile("${path.module}/tpl/sftp-config-secrets.json.tftpl", {
     ssm_param_arn_user_pub_key  = local.ssm_param_arn_user_pub_key
     ssm_param_arn_host_pub_key  = local.ssm_param_arn_host_pub_key
     ssm_param_arn_host_priv_key = local.ssm_param_arn_host_priv_key
@@ -194,7 +212,7 @@ locals {
     sftp_users                  = local.sftp_users
   })
 
-  sftp_config_command = templatefile("${path.module}/tpl/config-cmd.json.tftpl", {
+  sftp_config_command = templatefile("${path.module}/tpl/sftp-config-cmd.json.tftpl", {
     volume_name_user    = var.sftp_volume_name_user
     volume_name_host    = var.sftp_volume_name_host
     volume_name_config  = var.sftp_volume_name_config
@@ -202,7 +220,7 @@ locals {
     sftp_users          = local.sftp_users
   })
 
-  sftp_container_definitions = templatefile("${path.module}/tpl/container-definitions.json.tftpl", {
+  sftp_container_definitions = templatefile("${path.module}/tpl/sftp-container-definitions.json.tftpl", {
     aws_region             = data.aws_region.current.name
     log_group_name         = aws_cloudwatch_log_group.this.name
     main_container_name    = "sftp"
@@ -224,13 +242,13 @@ locals {
 }
 
 
-resource "aws_ecs_task_definition" "sftp" {
+resource "aws_ecs_task_definition" "this" {
 
   family                   = "sftp"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
-  execution_role_arn       = local.execution_role_arn
-  task_role_arn            = local.task_role_arn
+  execution_role_arn       = var.execution_role_arn
+  task_role_arn            = var.task_role_arn
   container_definitions    = local.sftp_container_definitions
 
   dynamic "volume" {
@@ -238,7 +256,7 @@ resource "aws_ecs_task_definition" "sftp" {
     iterator = user
     content {
       name      = "${var.sftp_volume_name_storage}-${user.value}"
-      host_path = "${var.shared_storage_path_prefix}/${user.value}"
+      host_path = "${var.fsx_mount_point}/${user.value}"
     }
   }
 
@@ -264,30 +282,14 @@ resource "aws_ecs_task_definition" "sftp" {
 
 }
 
-resource "aws_ecs_service" "sftp" {
+resource "aws_ecs_service" "this" {
   name            = "sftp"
   cluster         = aws_ecs_cluster.this.id
-  task_definition = aws_ecs_task_definition.sftp.arn
+  task_definition = aws_ecs_task_definition.this.arn
 
   enable_ecs_managed_tags = true
   enable_execute_command  = true
 
   scheduling_strategy = "DAEMON"
-
-  ## Alternative config using replicas
-
-  # scheduling_strategy = "REPLICA"
-
-  # desired_count   = 2
-
-  # ordered_placement_strategy {
-  #   type  = "spread"
-  #   field = "attributes:ecs.availability-zone"
-  # }
-
-  # ordered_placement_strategy {
-  #   type  = "spread"
-  #   field = "instanceId"
-  # }
 
 }

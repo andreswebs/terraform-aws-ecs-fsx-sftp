@@ -1,14 +1,11 @@
 output "ecs_cluster" {
-  value       = aws_ecs_cluster.this
-  description = "The aws_ecs_cluster resource"
+  value = aws_ecs_cluster.this
 }
 
 output "launch_template" {
-  value       = aws_launch_template.this
-  description = "The aws_launch_template resource"
+  value = aws_launch_template.this
 }
 
 output "task_definition" {
-  value       = aws_ecs_task_definition.sftp
-  description = "The aws_ecs_task_definition_resource"
+  value = aws_ecs_task_definition.this
 }

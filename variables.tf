@@ -14,6 +14,24 @@ variable "cluster_name" {
   description = "ECS cluster name"
 }
 
+variable "cluster_desired_capacity" {
+  type        = number
+  default     = 2
+  description = "ECS cluster ASG desired capacity"
+}
+
+variable "cluster_max_size" {
+  type        = number
+  default     = 4
+  description = "ECS cluster ASG maximum instance count"
+}
+
+variable "cluster_min_size" {
+  type        = number
+  default     = 1
+  description = "ECS cluster ASG minimum instance count"
+}
+
 variable "instance_type" {
   type        = string
   default     = "t3a.micro"
@@ -24,12 +42,6 @@ variable "ami_id" {
   type        = string
   default     = null
   description = "AMI ID for ECS container-instances"
-}
-
-variable "shared_storage_path_prefix" {
-  type        = string
-  default     = "/mnt/fsx"
-  description = "Filesystem path prefix for FSx shared stores; each SFTP user will have its own mount-point under this path"
 }
 
 variable "instance_profile" {
@@ -93,7 +105,31 @@ variable "sftp_task_port" {
 }
 
 /**
-* SFTP configuration: see `docs/sftp-configuration.md`
+* SFTP configuration:
+*
+* The sftp server configurations and SSH keys are injected from AWS SSM Parameter Store. Keys must be  
+* created externally for SFTP users and for the SFTP host, encoded as base64 values and stored in SSM parameters.
+* 
+* Parameter names are used as input for the Terraform configurations, through TF vars.
+* 
+* Parameter names are built from TF vars in the form:
+* `<prefix><suffix>[<sftp user>]`
+*
+* Prefix and suffix values must start with `/` and must not end with `/`; or can be set to an empty string.
+*
+* The prefix is given by the `sftp_ssm_param_prefix` var.
+*
+* The suffixes are:
+*
+* - `sftp_ssm_param_user_pub_key`: precedes user public keys, one key per user (e.g. `/sftp/user/public-key/machine-user`)
+* - `sftp_ssm_param_host_pub_key`: host public key (default: `/sftp/host/public-key`)
+* - `sftp_ssm_param_host_priv_key`: host private key (default: `/sftp/host/private-key`)
+*  
+* The sftp container will also mount the `/etc/sftp/users.conf` file from an SSM parameter 
+* (default: `/sftp/config/users-conf`), given by the suffix `sftp_ssm_param_config_users_conf`. 
+*  
+* The 'users-conf' parameter is created from the template: `./tpl/users.conf.tftpl`
+*  
 */
 variable "sftp_ssm_param_prefix" {
   type        = string
@@ -120,7 +156,7 @@ variable "sftp_ssm_param_host_priv_key" {
 }
 
 /**
-* `config/users-conf` SSM parameter is created from `tpl/users.conf.tpl`
+* `.../config/users-conf` SSM parameter is created from `tpl/users.conf.tpl`
 */
 variable "sftp_ssm_param_config_users_conf" {
   type        = string
@@ -137,7 +173,6 @@ variable "sftp_uid_start" {
 variable "sftp_users" {
   type        = string
   description = "Comma-separated list of SFTP users to add"
-  default     = "sftp-user"
 }
 
 variable "sftp_volume_name_storage" {
@@ -181,3 +216,74 @@ variable "sftp_config_container_image" {
   default     = "bash:latest"
   description = "Config container image"
 }
+
+/**
+* FSx
+*/
+
+variable "fsx_ssm_param_prefix" {
+  type        = string
+  default     = "/fsx"
+  description = "Prefix for SSM parameters used for FSx configuration"
+}
+
+variable "fsx_ssm_param_domain" {
+  type        = string
+  default     = "/domain"
+  description = "FSx domain SSM param path"
+}
+
+variable "fsx_ssm_param_username" {
+  type        = string
+  default     = "/username"
+  description = "FSx username SSM param path"
+}
+
+variable "fsx_ssm_param_password" {
+  type        = string
+  default     = "/password"
+  description = "FSx password SSM param path"
+}
+
+variable "fsx_creds_path" {
+  type        = string
+  default     = "/home/ec2-user/.fsx-credentials"
+  description = "FSx credentials filesystem path"
+}
+
+variable "fsx_ip_address" {
+  type        = string
+  default     = "127.0.0.1"
+  description = "FSx IP address; set to the correct value"
+}
+
+variable "fsx_file_share" {
+  type        = string
+  default     = "share"
+  description = "Name of the Windows file share to use"
+}
+
+variable "fsx_mount_point" {
+  type        = string
+  default     = "/mnt/fsx"
+  description = "Filesystem path prefix for FSx shared stores; each SFTP user will have its own mount-point under this path mapped to an FSx share"
+}
+
+variable "fsx_smb_version" {
+  type        = string
+  default     = "3.0"
+  description = "SMB protocol version; if in doubt, leave it as default"
+}
+
+variable "fsx_creds_path" {
+  type        = string
+  default     = "/home/ec2-user/.fsx-credentials"
+  description = "Path to FSx credentials file"
+}
+
+variable "fsx_cifs_max_buf_size" {
+  type        = string
+  default     = "130048"
+  description = "CIFS maximum buffer size; find it with the command: `modinfo cifs | grep`"
+}
+

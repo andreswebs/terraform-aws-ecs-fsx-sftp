@@ -1,0 +1,45 @@
+
+function get_param {
+  local NAME
+  NAME="${1}"
+  AWS_PAGER="" \
+  aws ssm get-parameter \
+    --name "${NAME}" \
+    --with-decryption \
+    --query 'Parameter.Value' \
+    --output text | base64 --decode
+}
+
+[ -f /usr/local/bin/aws ] || {
+
+  DOWNLOAD_URL="https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+
+  X_WORKDIR="$(mktemp -d -t awscliv2.XXXXXXXXX)"
+  X_FILE="${X_WORKDIR}/awscliv2.zip"
+
+  function finish {
+    rm -rf "${X_WORKDIR}"
+  }
+
+  ## main
+
+  trap finish EXIT
+
+  curl --silent --location --output "${X_FILE}" "${DOWNLOAD_URL}"
+  unzip -qq "${X_FILE}" -d "${X_WORKDIR}"
+  cd "${X_WORKDIR}" || exit 1
+  aws/install
+
+}
+
+FSX_CREDS=${fsx_creds_path}
+
+mkdir -p $(dirname "$${FSX_CREDS}")
+
+FSX_DOMAIN=$(get_param ${fsx_domain_param})
+FSX_USERNAME=$(get_param ${fsx_username_param})
+FSX_PASSWORD=$(get_param ${fsx_password_param})
+
+echo "domain=$${FSX_DOMAIN}" >> $${FSX_CREDS}
+echo "username=$${FSX_USERNAME}" >> $${FSX_CREDS}
+echo "password=$${FSX_PASSWORD}" >> $${FSX_CREDS}
