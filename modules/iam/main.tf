@@ -6,6 +6,7 @@
 * Trust policy used by both the ECS 'Task Execution Role' and 'Task Role'
 */
 data "aws_iam_policy_document" "ecs_tasks_trust" {
+  count = var.create_execution_role || var.create_task_role ? 1 : 0
   statement {
     actions = ["sts:AssumeRole"]
     principals {
@@ -21,10 +22,11 @@ data "aws_iam_policy_document" "ecs_tasks_trust" {
 resource "aws_iam_role" "ecs_execution" {
   count              = var.create_execution_role ? 1 : 0
   name               = var.execution_role_name
-  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_trust.json
+  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_trust[0].json
 }
 
 data "aws_iam_policy_document" "ssm_messages" {
+  count = var.create_execution_role ? 1 : 0
   statement {
     sid = "ssmmessages"
     actions = [
@@ -38,6 +40,7 @@ data "aws_iam_policy_document" "ssm_messages" {
 }
 
 data "aws_iam_policy_document" "access_secrets_sftp" {
+  count = var.create_execution_role ? 1 : 0
   statement {
     sid = "get"
     actions = [
@@ -54,9 +57,10 @@ data "aws_iam_policy_document" "access_secrets_sftp" {
 }
 
 data "aws_iam_policy_document" "ecs_execution_permissions_sftp" {
+  count = var.create_execution_role ? 1 : 0
   source_policy_documents = [
-    data.aws_iam_policy_document.ssm_messages.json,
-    data.aws_iam_policy_document.access_secrets_sftp.json
+    data.aws_iam_policy_document.ssm_messages[0].json,
+    data.aws_iam_policy_document.access_secrets_sftp[0].json
   ]
 }
 
@@ -64,7 +68,7 @@ resource "aws_iam_role_policy" "ecs_execution_permissions_sftp" {
   count  = var.create_execution_role ? 1 : 0
   name   = "execution-permissions"
   role   = aws_iam_role.ecs_execution[0].name
-  policy = data.aws_iam_policy_document.ecs_execution_permissions_sftp.json
+  policy = data.aws_iam_policy_document.ecs_execution_permissions_sftp[0].json
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_execution_role_sftp" {
@@ -79,5 +83,73 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_sftp" {
 resource "aws_iam_role" "ecs_task" {
   count              = var.create_task_role ? 1 : 0
   name               = var.task_role_name
-  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_trust.json
+  assume_role_policy = data.aws_iam_policy_document.ecs_tasks_trust[0].json
+}
+
+/**
+* ECS container instance role and permissions
+*/
+data "aws_iam_policy_document" "ec2_trust" {
+  count = var.create_instance_role ? 1 : 0
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "ecs_instance" {
+  count              = var.create_instance_role ? 1 : 0
+  name               = var.instance_role_name
+  assume_role_policy = data.aws_iam_policy_document.ec2_trust[0].json
+}
+
+resource "aws_iam_instance_profile" "ecs_instance" {
+  count = var.create_instance_role ? 1 : 0
+  name  = var.instance_profile_name
+  role  = aws_iam_role.ecs_instance[0].name
+}
+
+locals {
+
+  ecs_instance_policies = [
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+  ]
+
+  ecs_instance_policies_norm = var.create_instance_role ? local.ecs_instance_policies : []
+
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_instance" {
+  for_each   = toset(local.ecs_instance_policies_norm)
+  role       = aws_iam_role.ecs_instance[0].name
+  policy_arn = each.value
+}
+
+data "aws_iam_policy_document" "access_secrets_fsx" {
+  count = var.create_instance_role ? 1 : 0
+  statement {
+    sid = "get"
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters"
+    ]
+    resources = [
+      "${var.ssm_param_arn_fsx_domain}",
+      "${var.ssm_param_arn_fsx_username}",
+      "${var.ssm_param_arn_fsx_password}",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "ecs_instance_access_secrets_fsx" {
+  count  = var.create_instance_role ? 1 : 0
+  name   = "fsx-secrets"
+  role   = aws_iam_role.ecs_instance[0].name
+  policy = data.aws_iam_policy_document.access_secrets_fsx[0].json
 }

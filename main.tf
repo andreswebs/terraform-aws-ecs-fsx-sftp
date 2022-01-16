@@ -16,6 +16,7 @@ data "aws_ami" "ecs_ami_latest" {
 }
 
 locals {
+
   sftp_users = split(",", var.sftp_users)
 
   ecs_security_group_ids = [
@@ -26,13 +27,61 @@ locals {
   ]
 
   ami_id = var.ami_id == null || var.ami_id == "" ? data.aws_ami.ecs_ami_latest.id : var.ami_id
+
 }
 
 locals {
 
+  ssm_param_arn_prefix = "arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
+
+  sftp_ssm_param_user_pub_key  = "${var.sftp_ssm_param_prefix}${var.sftp_ssm_param_user_pub_key}"
+  sftp_ssm_param_host_pub_key  = "${var.sftp_ssm_param_prefix}${var.sftp_ssm_param_host_pub_key}"
+  sftp_ssm_param_host_priv_key = "${var.sftp_ssm_param_prefix}${var.sftp_ssm_param_host_priv_key}"
+
+  ssm_param_arn_user_pub_key  = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_user_pub_key}"
+  ssm_param_arn_host_pub_key  = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_host_pub_key}"
+  ssm_param_arn_host_priv_key = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_host_priv_key}"
+
   fsx_ssm_param_domain   = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_domain}"
   fsx_ssm_param_username = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_username}"
   fsx_ssm_param_password = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_password}"
+
+  ssm_param_arn_fsx_domain   = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_domain}"
+  ssm_param_arn_fsx_username = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_username}"
+  ssm_param_arn_fsx_password = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_password}"
+
+}
+
+locals {
+  create_instance_role  = var.instance_role_arn == "" || var.instance_role_arn == null
+  create_execution_role = var.execution_role_arn == "" || var.execution_role_arn == null
+  create_task_role      = var.task_role_arn == "" || var.task_role_arn == null
+}
+
+module "iam" {
+
+  source = "./modules/iam"
+
+  create_instance_role  = local.create_instance_role
+  create_execution_role = local.create_execution_role
+  create_task_role      = local.create_task_role
+
+  instance_profile_name = var.instance_profile_name
+  instance_role_name    = var.instance_role_name
+  execution_role_name   = var.execution_role_name
+  task_role_name        = var.task_role_name
+
+  ssm_param_arn_host_priv_key     = local.ssm_param_arn_host_priv_key
+  ssm_param_arn_host_pub_key      = local.ssm_param_arn_host_pub_key
+  ssm_param_arn_user_pub_key      = local.ssm_param_arn_user_pub_key
+  ssm_param_arn_config_users_conf = aws_ssm_parameter.sftp_config_users_conf.arn
+  ssm_param_arn_fsx_domain        = local.ssm_param_arn_fsx_domain
+  ssm_param_arn_fsx_username      = local.ssm_param_arn_fsx_username
+  ssm_param_arn_fsx_password      = local.ssm_param_arn_fsx_password
+
+}
+
+locals {
 
   fsx_config_command = templatefile("${path.module}/tpl/fsx-config.cmd.tftpl", {
     fsx_mount_point = var.fsx_mount_point
@@ -78,7 +127,7 @@ resource "aws_launch_template" "this" {
   key_name = var.ssh_key_name
 
   iam_instance_profile {
-    name = var.instance_profile
+    name = local.create_instance_role ? module.iam.instance_profile.name : var.instance_role_name
   }
 
   user_data = base64encode(templatefile("${path.module}/tpl/userdata.tftpl", {
@@ -196,13 +245,6 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 locals {
-  ssm_param_arn_prefix        = "arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter${var.sftp_ssm_param_prefix}"
-  ssm_param_arn_user_pub_key  = "${local.ssm_param_arn_prefix}${var.sftp_ssm_param_user_pub_key}"
-  ssm_param_arn_host_pub_key  = "${local.ssm_param_arn_prefix}${var.sftp_ssm_param_host_pub_key}"
-  ssm_param_arn_host_priv_key = "${local.ssm_param_arn_prefix}${var.sftp_ssm_param_host_priv_key}"
-}
-
-locals {
 
   sftp_config_secrets = templatefile("${path.module}/tpl/sftp-config-secrets.json.tftpl", {
     ssm_param_arn_user_pub_key  = local.ssm_param_arn_user_pub_key
@@ -241,14 +283,13 @@ locals {
 
 }
 
-
 resource "aws_ecs_task_definition" "this" {
 
   family                   = "sftp"
   network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
-  execution_role_arn       = var.execution_role_arn
-  task_role_arn            = var.task_role_arn
+  execution_role_arn       = local.create_execution_role ? module.iam.role.ecs_execution.arn : var.execution_role_arn
+  task_role_arn            = local.create_task_role ? module.iam.role.ecs_task.arn : var.task_role_arn
   container_definitions    = local.sftp_container_definitions
 
   dynamic "volume" {

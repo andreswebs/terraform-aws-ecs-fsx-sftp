@@ -10,7 +10,7 @@ variable "subnet_ids" {
 
 variable "cluster_name" {
   type        = string
-  default     = "default"
+  default     = "sftp"
   description = "ECS cluster name"
 }
 
@@ -44,15 +44,21 @@ variable "ami_id" {
   description = "AMI ID for ECS container-instances"
 }
 
-variable "instance_profile" {
+variable "instance_profile_name" {
   type        = string
-  default     = "ecs-instance"
-  description = "ECS container-instance IAM profile name; must be an existing instance profile"
+  default     = "ecs-sftp-instance"
+  description = "ECS container-instance IAM profile name; if `instance_role_arn` is set, this must be an existing instance profile associated to that IAM role"
+}
+
+variable "instance_role_name" {
+  type        = string
+  default     = "ecs-sftp-instance"
+  description = "ECS container-instance IAM role name; overriden by `instance_role_arn`"
 }
 
 variable "ssh_key_name" {
   type        = string
-  default     = "ecs-ssh"
+  default     = null
   description = "ECS container-instance SSH key-pair name; must be an existing key-pair"
 }
 
@@ -60,6 +66,12 @@ variable "log_retention_in_days" {
   type        = number
   default     = 30
   description = "CloudWatch Logs retention in days"
+}
+
+variable "instance_role_arn" {
+  type        = string
+  default     = null
+  description = "ECS container-instance IAM role ARN; overrides `instance_role_name`"
 }
 
 variable "execution_role_arn" {
@@ -105,31 +117,7 @@ variable "sftp_task_port" {
 }
 
 /**
-* SFTP configuration:
-*
-* The sftp server configurations and SSH keys are injected from AWS SSM Parameter Store. Keys must be  
-* created externally for SFTP users and for the SFTP host, encoded as base64 values and stored in SSM parameters.
-* 
-* Parameter names are used as input for the Terraform configurations, through TF vars.
-* 
-* Parameter names are built from TF vars in the form:
-* `<prefix><suffix>[<sftp user>]`
-*
-* Prefix and suffix values must start with `/` and must not end with `/`; or can be set to an empty string.
-*
-* The prefix is given by the `sftp_ssm_param_prefix` var.
-*
-* The suffixes are:
-*
-* - `sftp_ssm_param_user_pub_key`: precedes user public keys, one key per user (e.g. `/sftp/user/public-key/machine-user`)
-* - `sftp_ssm_param_host_pub_key`: host public key (default: `/sftp/host/public-key`)
-* - `sftp_ssm_param_host_priv_key`: host private key (default: `/sftp/host/private-key`)
-*  
-* The sftp container will also mount the `/etc/sftp/users.conf` file from an SSM parameter 
-* (default: `/sftp/config/users-conf`), given by the suffix `sftp_ssm_param_config_users_conf`. 
-*  
-* The 'users-conf' parameter is created from the template: `./tpl/users.conf.tftpl`
-*  
+* SFTP configuration: see `docs/sftp-configuration.md`
 */
 variable "sftp_ssm_param_prefix" {
   type        = string
@@ -266,7 +254,7 @@ variable "fsx_file_share" {
 variable "fsx_mount_point" {
   type        = string
   default     = "/mnt/fsx"
-  description = "Filesystem path prefix for FSx shared stores; each SFTP user will have its own mount-point under this path mapped to an FSx share"
+  description = "Filesystem path prefix for FSx shared stores; each SFTP user will have its own mount-point under this path, mapped to an FSx share path"
 }
 
 variable "fsx_smb_version" {
@@ -286,4 +274,3 @@ variable "fsx_cifs_max_buf_size" {
   default     = "130048"
   description = "CIFS maximum buffer size; find it with the command: `modinfo cifs | grep`"
 }
-
