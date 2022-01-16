@@ -12,18 +12,9 @@ This module deploys a _subset_ of the resources described in the diagram below. 
 
 ### FSx
 
-The AWS FSx for Windows file system must be configured with access for a domain user with permissions to read and write to the file share. This user's credentials will be stored in the AMI.
+The AWS FSx for Windows file system must be configured with access for a domain user with permissions to read and write to the file share. This user's credentials will be stored in plaintext the ECS container instance.
 
 An example module to deploy FSx with Active Directory can be found in the Terraform registry: [andreswebs/ad-fsx/aws](https://registry.terraform.io/modules/andreswebs/ad-fsx/aws/latest).
-
-### AMI
-
-The AWS EC2 AMIs must have the credentials for an AD user with access to the file share. It must also have the filesystem mounts for each SFTP user, with the correct Unix permissions for each user. The needed configuration is described in the AWS documentation for using [FSx Windows file shares on Linux](https://docs.aws.amazon.com/fsx/latest/WindowsGuide/using-file-shares.html#map-shares-linux).
-
-Example code for the AWS EC2 AMI to be used can be found in the following repository:
-
-<https://github.com/andreswebs/ecs-linux-fsx-ami>
-
 
 ## Configuration
 
