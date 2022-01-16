@@ -22,6 +22,8 @@ function get_param {
 
   trap finish EXIT
 
+  yum install -y curl unzip
+
   curl --silent --location --output "$${X_FILE}" "$${DOWNLOAD_URL}"
   unzip -qq "$${X_FILE}" -d "$${X_WORKDIR}"
   cd "$${X_WORKDIR}" || exit 1
