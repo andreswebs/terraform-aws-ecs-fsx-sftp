@@ -112,9 +112,9 @@ module "sftp" {
 
 | Name | Description |
 |------|-------------|
-| <a name="output_ecs_cluster"></a> [ecs\_cluster](#output\_ecs\_cluster) | n/a |
-| <a name="output_launch_template"></a> [launch\_template](#output\_launch\_template) | n/a |
-| <a name="output_task_definition"></a> [task\_definition](#output\_task\_definition) | n/a |
+| <a name="output_ecs_cluster"></a> [ecs\_cluster](#output\_ecs\_cluster) | The aws\_ecs\_cluster resource |
+| <a name="output_launch_template"></a> [launch\_template](#output\_launch\_template) | The aws\_launch\_template resource |
+| <a name="output_task_definition"></a> [task\_definition](#output\_task\_definition) | The aws\_ecs\_task\_definition resource |
 
 ## Providers
 
