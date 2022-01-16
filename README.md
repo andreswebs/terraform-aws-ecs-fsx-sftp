@@ -12,7 +12,7 @@ This module deploys a _subset_ of the resources described in the diagram below. 
 
 ### FSx
 
-The AWS FSx for Windows file system must be configured with access for a domain user with permissions to read and write to the file share. This user's credentials will be stored in plaintext the ECS container instance.
+The AWS FSx for Windows file system must be configured with access for a domain user with permissions to read and write to the file share. This user's credentials will be stored in plaintext in the ECS container instance.
 
 An example module to deploy FSx with Active Directory can be found in the Terraform registry: [andreswebs/ad-fsx/aws](https://registry.terraform.io/modules/andreswebs/ad-fsx/aws/latest).
 
@@ -41,10 +41,9 @@ module "sftp" {
   cluster_name   = "example"
   vpc_id         = var.vpc_id
   subnet_ids     = var.subnet_ids
-  ami_id         = var.ami_id
   cidr_whitelist = [var.corp_vpn]
-  sftp_users     = "user-1,user-2,user-3" ## <--- This list must match in the pre-configured EC2 AMI
-  sftp_uid_start = "1001"  ## <--- This UID must match in the pre-configured EC2 AMI
+  sftp_users     = "user-1,user-2,user-3"
+  sftp_uid_start = 1001
 }
 ```
 
