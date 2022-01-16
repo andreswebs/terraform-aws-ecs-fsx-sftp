@@ -57,6 +57,11 @@ variable "ssm_param_arn_fsx_password" {
   description = "SSM parameter ARN for the FSx AD user"
 }
 
+variable "ssm_param_arn_fsx_ip_address" {
+  type        = string
+  description = "SSM parameter ARN for the FSx IP address"
+}
+
 variable "create_execution_role" {
   type        = bool
   default     = true

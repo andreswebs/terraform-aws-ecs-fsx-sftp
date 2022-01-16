@@ -233,6 +233,12 @@ variable "fsx_ssm_param_password" {
   description = "FSx password SSM param path"
 }
 
+variable "fsx_ssm_param_ip_address" {
+  type        = string
+  default     = "/ip-address"
+  description = "FSx IP address SSM param path"
+}
+
 variable "fsx_creds_path" {
   type        = string
   default     = "/home/ec2-user/.fsx-credentials"

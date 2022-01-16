@@ -39,6 +39,7 @@ module "iam" {
 | <a name="input_instance_role_name"></a> [instance\_role\_name](#input\_instance\_role\_name) | ECS container instance role name | `string` | `"ecs-sftp-instance"` | no |
 | <a name="input_ssm_param_arn_config_users_conf"></a> [ssm\_param\_arn\_config\_users\_conf](#input\_ssm\_param\_arn\_config\_users\_conf) | SSM parameter ARN for the `/etc/sftp/users.conf` file | `string` | n/a | yes |
 | <a name="input_ssm_param_arn_fsx_domain"></a> [ssm\_param\_arn\_fsx\_domain](#input\_ssm\_param\_arn\_fsx\_domain) | SSM parameter ARN for FSx Active Directory domain | `string` | n/a | yes |
+| <a name="input_ssm_param_arn_fsx_ip_address"></a> [ssm\_param\_arn\_fsx\_ip\_address](#input\_ssm\_param\_arn\_fsx\_ip\_address) | SSM parameter ARN for the FSx IP address | `string` | n/a | yes |
 | <a name="input_ssm_param_arn_fsx_password"></a> [ssm\_param\_arn\_fsx\_password](#input\_ssm\_param\_arn\_fsx\_password) | SSM parameter ARN for the FSx AD user | `string` | n/a | yes |
 | <a name="input_ssm_param_arn_fsx_username"></a> [ssm\_param\_arn\_fsx\_username](#input\_ssm\_param\_arn\_fsx\_username) | SSM parameter ARN for an AD user with write access to the FSX Windows file system | `string` | n/a | yes |
 | <a name="input_ssm_param_arn_host_priv_key"></a> [ssm\_param\_arn\_host\_priv\_key](#input\_ssm\_param\_arn\_host\_priv\_key) | SSM parameter ARN for host private key | `string` | n/a | yes |

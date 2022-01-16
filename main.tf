@@ -42,13 +42,15 @@ locals {
   ssm_param_arn_host_pub_key  = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_host_pub_key}"
   ssm_param_arn_host_priv_key = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_host_priv_key}"
 
-  fsx_ssm_param_domain   = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_domain}"
-  fsx_ssm_param_username = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_username}"
-  fsx_ssm_param_password = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_password}"
+  fsx_ssm_param_domain     = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_domain}"
+  fsx_ssm_param_username   = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_username}"
+  fsx_ssm_param_password   = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_password}"
+  fsx_ssm_param_ip_address = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_ip_address}"
 
-  ssm_param_arn_fsx_domain   = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_domain}"
-  ssm_param_arn_fsx_username = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_username}"
-  ssm_param_arn_fsx_password = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_password}"
+  ssm_param_arn_fsx_domain     = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_domain}"
+  ssm_param_arn_fsx_username   = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_username}"
+  ssm_param_arn_fsx_password   = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_password}"
+  ssm_param_arn_fsx_ip_address = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_ip_address}"
 
 }
 
@@ -78,10 +80,13 @@ module "iam" {
   ssm_param_arn_fsx_domain        = local.ssm_param_arn_fsx_domain
   ssm_param_arn_fsx_username      = local.ssm_param_arn_fsx_username
   ssm_param_arn_fsx_password      = local.ssm_param_arn_fsx_password
+  ssm_param_arn_fsx_ip_address    = local.ssm_param_arn_fsx_ip_address
 
 }
 
 locals {
+
+  userdata_shell_functions = templatefile("${path.module}/tpl/userdata.functions.tftpl", {})
 
   fsx_config_command = templatefile("${path.module}/tpl/fsx-config.cmd.tftpl", {
     fsx_mount_point = var.fsx_mount_point
@@ -97,14 +102,14 @@ locals {
   })
 
   fsx_mount_command = templatefile("${path.module}/tpl/fsx-mount.cmd.tftpl", {
-    sftp_users            = local.sftp_users
-    sftp_uid_start        = var.sftp_uid_start
-    fsx_ip_address        = var.fsx_ip_address
-    fsx_file_share        = var.fsx_file_share
-    fsx_mount_point       = var.fsx_mount_point
-    fsx_smb_version       = var.fsx_smb_version
-    fsx_cifs_max_buf_size = var.fsx_cifs_max_buf_size
-    fsx_creds_path        = var.fsx_creds_path
+    sftp_users               = local.sftp_users
+    sftp_uid_start           = var.sftp_uid_start
+    fsx_ssm_param_ip_address = local.fsx_ssm_param_ip_address
+    fsx_file_share           = var.fsx_file_share
+    fsx_mount_point          = var.fsx_mount_point
+    fsx_smb_version          = var.fsx_smb_version
+    fsx_cifs_max_buf_size    = var.fsx_cifs_max_buf_size
+    fsx_creds_path           = var.fsx_creds_path
   })
 
 }
@@ -132,6 +137,7 @@ resource "aws_launch_template" "this" {
 
   user_data = base64encode(templatefile("${path.module}/tpl/userdata.tftpl", {
     cluster_name          = var.cluster_name
+    shell_functions       = local.userdata_shell_functions
     fsx_config_command    = local.fsx_config_command
     fsx_get_creds_command = local.fsx_get_creds_command
     fsx_mount_command     = local.fsx_mount_command

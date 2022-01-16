@@ -72,6 +72,7 @@ module "sftp" {
 | <a name="input_fsx_mount_point"></a> [fsx\_mount\_point](#input\_fsx\_mount\_point) | Filesystem path prefix for FSx shared stores; each SFTP user will have its own mount-point under this path, mapped to an FSx share path | `string` | `"/mnt/fsx"` | no |
 | <a name="input_fsx_smb_version"></a> [fsx\_smb\_version](#input\_fsx\_smb\_version) | SMB protocol version; if in doubt, leave it as default | `string` | `"3.0"` | no |
 | <a name="input_fsx_ssm_param_domain"></a> [fsx\_ssm\_param\_domain](#input\_fsx\_ssm\_param\_domain) | FSx domain SSM param path | `string` | `"/domain"` | no |
+| <a name="input_fsx_ssm_param_ip_address"></a> [fsx\_ssm\_param\_ip\_address](#input\_fsx\_ssm\_param\_ip\_address) | FSx IP address SSM param path | `string` | `"/ip-address"` | no |
 | <a name="input_fsx_ssm_param_password"></a> [fsx\_ssm\_param\_password](#input\_fsx\_ssm\_param\_password) | FSx password SSM param path | `string` | `"/password"` | no |
 | <a name="input_fsx_ssm_param_prefix"></a> [fsx\_ssm\_param\_prefix](#input\_fsx\_ssm\_param\_prefix) | Prefix for SSM parameters used for FSx configuration | `string` | `"/fsx"` | no |
 | <a name="input_fsx_ssm_param_username"></a> [fsx\_ssm\_param\_username](#input\_fsx\_ssm\_param\_username) | FSx username SSM param path | `string` | `"/username"` | no |

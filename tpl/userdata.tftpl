@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154
 
 yum update -y
 
-# shellcheck disable=SC2154
 echo ECS_CLUSTER="${cluster_name}" >> /etc/ecs/ecs.config
 
-# shellcheck disable=SC2154
+${shell_functions}
+
 ${fsx_config_command}
 
-# shellcheck disable=SC2154
-${fsx_get_creds}
+${fsx_get_creds_command}
 
-# shellcheck disable=SC2154
 ${fsx_mount_command}

@@ -143,6 +143,7 @@ data "aws_iam_policy_document" "access_secrets_fsx" {
       "${var.ssm_param_arn_fsx_domain}",
       "${var.ssm_param_arn_fsx_username}",
       "${var.ssm_param_arn_fsx_password}",
+      "${var.ssm_param_arn_fsx_ip_address}",
     ]
   }
 }
