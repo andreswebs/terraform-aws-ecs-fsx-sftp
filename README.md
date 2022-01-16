@@ -18,13 +18,17 @@ An example module to deploy FSx with Active Directory can be found in the Terraf
 
 ## Configuration
 
+### FSx
+
+FSx configuration values are injected into the ECS container instances via AWS SSM parameters. Parameters must be created separately with the correct values in the AWS account.
+
+Refer to this [FSx documentation](https://github.com/andreswebs/terraform-aws-ecs-fsx-sftp/blob/main/docs/fsx-configuration.md) for how to pass the SSM parameter names into this module.
+
+### SFTP
+
 The SFTP server configuration and cryptographic keys injection is done via AWS SSM parameters. Parameters must be created separately with the correct SSH keys and configuration values in the AWS account. 
 
-Refer to the [documentation](https://github.com/andreswebs/terraform-aws-ecs-fsx-sftp/blob/main/docs/sftp-configuration.md) for how to pass the SSM parameter names into this module.
-
-The `sftp_users` argument _must match_ the Unix usernames and UIDs configured in the EC2 AMI. The [example AMI](https://github.com/andreswebs/ecs-linux-fsx-ami) sets the correct mounts and permissions, receiving the same arguments as this module.
-
-Defaults for both are also the same, creating a single user named `sftp-user` with UID `1001`.
+Refer to this [SFTP documentation](https://github.com/andreswebs/terraform-aws-ecs-fsx-sftp/blob/main/docs/sftp-configuration.md) for how to pass the SSM parameter names into this module.
 
 The values in the example below will create 3 users with UIDs `1001`, `1002`, `1003`, respectively.
 

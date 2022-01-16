@@ -1,7 +1,7 @@
 
 # SFTP configuration
 
-The sftp server configurations and SSH keys are injected from AWS SSM Parameter Store. Keys must be  
+The SFTP server configurations and SSH keys are injected from AWS SSM Parameter Store. Keys must be  
 created externally for SFTP users and for the SFTP host, encoded as base64 values and stored in SSM parameters.
 
 The SSM parameters must be created separately, with the correct values.
