@@ -66,7 +66,7 @@ module "sftp" {
 | <a name="input_execution_role_arn"></a> [execution\_role\_arn](#input\_execution\_role\_arn) | ECS 'Task Execution Role' ARN; overrides `execution_role_name` | `string` | `null` | no |
 | <a name="input_execution_role_name"></a> [execution\_role\_name](#input\_execution\_role\_name) | ECS 'Task Execution Role' name; overriden by `execution_role_arn` | `string` | `"ecs-execution"` | no |
 | <a name="input_fsx_cifs_max_buf_size"></a> [fsx\_cifs\_max\_buf\_size](#input\_fsx\_cifs\_max\_buf\_size) | CIFS maximum buffer size; find it with the command: `modinfo cifs | grep` | `string` | `"130048"` | no |
-| <a name="input_fsx_creds_path"></a> [fsx\_creds\_path](#input\_fsx\_creds\_path) | Path to FSx credentials file | `string` | `"/home/ec2-user/.fsx-credentials"` | no |
+| <a name="input_fsx_creds_path"></a> [fsx\_creds\_path](#input\_fsx\_creds\_path) | FSx credentials filesystem path | `string` | `"/home/ec2-user/.fsx-credentials"` | no |
 | <a name="input_fsx_file_share"></a> [fsx\_file\_share](#input\_fsx\_file\_share) | Name of the Windows file share to use | `string` | `"share"` | no |
 | <a name="input_fsx_ip_address"></a> [fsx\_ip\_address](#input\_fsx\_ip\_address) | FSx IP address; set to the correct value | `string` | `"127.0.0.1"` | no |
 | <a name="input_fsx_mount_point"></a> [fsx\_mount\_point](#input\_fsx\_mount\_point) | Filesystem path prefix for FSx shared stores; each SFTP user will have its own mount-point under this path, mapped to an FSx share path | `string` | `"/mnt/fsx"` | no |

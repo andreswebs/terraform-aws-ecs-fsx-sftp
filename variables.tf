@@ -44,18 +44,6 @@ variable "ami_id" {
   description = "AMI ID for ECS container-instances"
 }
 
-variable "instance_profile_name" {
-  type        = string
-  default     = "ecs-sftp-instance"
-  description = "ECS container-instance IAM profile name; if `instance_role_arn` is set, this must be an existing instance profile associated to that IAM role"
-}
-
-variable "instance_role_name" {
-  type        = string
-  default     = "ecs-sftp-instance"
-  description = "ECS container-instance IAM role name; overriden by `instance_role_arn`"
-}
-
 variable "ssh_key_name" {
   type        = string
   default     = null
@@ -84,6 +72,18 @@ variable "task_role_arn" {
   type        = string
   default     = null
   description = "ECS 'Task Role' ARN; overrides `task_role_name`"
+}
+
+variable "instance_role_name" {
+  type        = string
+  default     = "ecs-sftp-instance"
+  description = "ECS container-instance IAM role name; overriden by `instance_role_arn`"
+}
+
+variable "instance_profile_name" {
+  type        = string
+  default     = "ecs-sftp-instance"
+  description = "ECS container-instance IAM profile name; if `instance_role_arn` is set, this must be an existing instance profile associated to that IAM role"
 }
 
 variable "task_role_name" {
@@ -261,12 +261,6 @@ variable "fsx_smb_version" {
   type        = string
   default     = "3.0"
   description = "SMB protocol version; if in doubt, leave it as default"
-}
-
-variable "fsx_creds_path" {
-  type        = string
-  default     = "/home/ec2-user/.fsx-credentials"
-  description = "Path to FSx credentials file"
 }
 
 variable "fsx_cifs_max_buf_size" {
