@@ -13,6 +13,6 @@ The prefix is given by the `fsx_ssm_param_prefix` TF var (default: `/fsx`).
 
 The suffixes are:
 
-- `fsx_ssm_param_domain`: AD domain name used by FSx(default param name with prefix: `/fsx/domain`)
+- `fsx_ssm_param_domain`: AD domain name used by FSx (default param name with prefix: `/fsx/domain`)
 - `fsx_ssm_param_username`: AD user name used by ECS container instances to mount FSx shares (default param name with prefix: `/fsx/username`)
 - `fsx_ssm_param_password`: AD user password used by ECS container instances to mount FSx (default param name with prefix: `/fsx/password`)
