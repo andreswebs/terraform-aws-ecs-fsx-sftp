@@ -113,24 +113,6 @@ resource "aws_iam_instance_profile" "ecs_instance" {
   role  = aws_iam_role.ecs_instance[0].name
 }
 
-locals {
-
-  ecs_instance_policies = [
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
-  ]
-
-  ecs_instance_policies_norm = var.create_instance_role ? local.ecs_instance_policies : []
-
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_instance" {
-  for_each   = toset(local.ecs_instance_policies_norm)
-  role       = aws_iam_role.ecs_instance[0].name
-  policy_arn = each.value
-}
-
 data "aws_iam_policy_document" "access_secrets_fsx" {
   count = var.create_instance_role ? 1 : 0
   statement {
@@ -148,13 +130,6 @@ data "aws_iam_policy_document" "access_secrets_fsx" {
   }
 }
 
-resource "aws_iam_role_policy" "ecs_instance_access_secrets_fsx" {
-  count  = var.create_instance_role ? 1 : 0
-  name   = "fsx-secrets"
-  role   = aws_iam_role.ecs_instance[0].name
-  policy = data.aws_iam_policy_document.access_secrets_fsx[0].json
-}
-
 data "aws_iam_policy_document" "access_script" {
   count = var.create_instance_role ? 1 : 0
   statement {
@@ -168,9 +143,37 @@ data "aws_iam_policy_document" "access_script" {
   }
 }
 
-resource "aws_iam_role_policy" "ecs_instance_access_script" {
+locals {
+
+  ecs_instance_managed_policies = [
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
+  ]
+
+  ecs_instance_managed_policies_norm = var.create_instance_role ? local.ecs_instance_managed_policies : []
+
+  ecs_instance_policy_documents = var.create_instance_role ? [
+    data.aws_iam_policy_document.access_secrets_fsx[0].json,
+    data.aws_iam_policy_document.access_script[0].json,
+  ] : []
+
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_instance" {
+  for_each   = toset(local.ecs_instance_managed_policies_norm)
+  role       = aws_iam_role.ecs_instance[0].name
+  policy_arn = each.value
+}
+
+data "aws_iam_policy_document" "ecs_instance_permissions" {
   count  = var.create_instance_role ? 1 : 0
-  name   = "fsx-config-script"
+  source_policy_documents = local.ecs_instance_policy_documents
+}
+
+resource "aws_iam_role_policy" "ecs_instance_permissions" {
+  count  = var.create_instance_role ? 1 : 0
+  name   = "instance-permissions"
   role   = aws_iam_role.ecs_instance[0].name
-  policy = data.aws_iam_policy_document.access_script[0].json
+  policy = data.aws_iam_policy_document.ecs_instance_permissions[0].json
 }
