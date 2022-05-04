@@ -81,6 +81,8 @@ module "sftp" {
 | <a name="input_instance_role_name"></a> [instance\_role\_name](#input\_instance\_role\_name) | ECS container-instance IAM role name; overriden by `instance_role_arn` | `string` | `"ecs-sftp-instance"` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | ECS container-instance type | `string` | `"t3a.micro"` | no |
 | <a name="input_log_retention_in_days"></a> [log\_retention\_in\_days](#input\_log\_retention\_in\_days) | CloudWatch Logs retention in days | `number` | `30` | no |
+| <a name="input_script_s3_bucket"></a> [script\_s3\_bucket](#input\_script\_s3\_bucket) | Name of an S3 bucket to store the FSx configuration script | `string` | n/a | yes |
+| <a name="input_script_s3_key"></a> [script\_s3\_key](#input\_script\_s3\_key) | fsx-config/configure-fsx.bash | `string` | n/a | yes |
 | <a name="input_sftp_config_container_image"></a> [sftp\_config\_container\_image](#input\_sftp\_config\_container\_image) | Config container image | `string` | `"bash:latest"` | no |
 | <a name="input_sftp_host_port"></a> [sftp\_host\_port](#input\_sftp\_host\_port) | Host port for SFTP access | `number` | `2222` | no |
 | <a name="input_sftp_main_container_image"></a> [sftp\_main\_container\_image](#input\_sftp\_main\_container\_image) | Main SFTP container image | `string` | `"atmoz/sftp:latest"` | no |
@@ -121,14 +123,14 @@ module "sftp" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 3.50.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.12 |
 
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.50.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.12 |
 
 ## Resources
 
@@ -141,6 +143,7 @@ module "sftp" {
 | [aws_ecs_service.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition) | resource |
 | [aws_launch_template.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
+| [aws_s3_object.script_configure_fsx](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_object) | resource |
 | [aws_security_group.egress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.internal](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group.sftp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |

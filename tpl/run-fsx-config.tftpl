@@ -1,0 +1,3 @@
+aws s3 cp "s3://${script_s3_bucket}/${script_s3_key}" "${script_file_local}"
+chmod +x "${script_file_local}"
+"${script_file_local}"

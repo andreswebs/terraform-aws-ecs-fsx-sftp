@@ -2,14 +2,10 @@
 # shellcheck disable=SC2154
 exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
 
-yum update -y
-
 echo ECS_CLUSTER="${cluster_name}" >> /etc/ecs/ecs.config
 
-${shell_functions}
+yum update -y
 
-${fsx_config_command}
+${install_awscli}
 
-${fsx_get_creds_command}
-
-${fsx_mount_command}
+${run_fsx_config}

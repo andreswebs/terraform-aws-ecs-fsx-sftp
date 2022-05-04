@@ -30,90 +30,6 @@ locals {
 
 }
 
-locals {
-
-  ssm_param_arn_prefix = "arn:${data.aws_partition.current.partition}:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
-
-  sftp_ssm_param_user_pub_key  = "${var.sftp_ssm_param_prefix}${var.sftp_ssm_param_user_pub_key}"
-  sftp_ssm_param_host_pub_key  = "${var.sftp_ssm_param_prefix}${var.sftp_ssm_param_host_pub_key}"
-  sftp_ssm_param_host_priv_key = "${var.sftp_ssm_param_prefix}${var.sftp_ssm_param_host_priv_key}"
-
-  ssm_param_arn_user_pub_key  = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_user_pub_key}"
-  ssm_param_arn_host_pub_key  = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_host_pub_key}"
-  ssm_param_arn_host_priv_key = "${local.ssm_param_arn_prefix}${local.sftp_ssm_param_host_priv_key}"
-
-  fsx_ssm_param_domain     = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_domain}"
-  fsx_ssm_param_username   = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_username}"
-  fsx_ssm_param_password   = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_password}"
-  fsx_ssm_param_ip_address = "${var.fsx_ssm_param_prefix}${var.fsx_ssm_param_ip_address}"
-
-  ssm_param_arn_fsx_domain     = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_domain}"
-  ssm_param_arn_fsx_username   = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_username}"
-  ssm_param_arn_fsx_password   = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_password}"
-  ssm_param_arn_fsx_ip_address = "${local.ssm_param_arn_prefix}${local.fsx_ssm_param_ip_address}"
-
-}
-
-locals {
-  create_instance_role  = var.instance_role_arn == "" || var.instance_role_arn == null
-  create_execution_role = var.execution_role_arn == "" || var.execution_role_arn == null
-  create_task_role      = var.task_role_arn == "" || var.task_role_arn == null
-}
-
-module "iam" {
-
-  source = "./modules/iam"
-
-  create_instance_role  = local.create_instance_role
-  create_execution_role = local.create_execution_role
-  create_task_role      = local.create_task_role
-
-  instance_profile_name = var.instance_profile_name
-  instance_role_name    = var.instance_role_name
-  execution_role_name   = var.execution_role_name
-  task_role_name        = var.task_role_name
-
-  ssm_param_arn_host_priv_key     = local.ssm_param_arn_host_priv_key
-  ssm_param_arn_host_pub_key      = local.ssm_param_arn_host_pub_key
-  ssm_param_arn_user_pub_key      = local.ssm_param_arn_user_pub_key
-  ssm_param_arn_config_users_conf = aws_ssm_parameter.sftp_config_users_conf.arn
-  ssm_param_arn_fsx_domain        = local.ssm_param_arn_fsx_domain
-  ssm_param_arn_fsx_username      = local.ssm_param_arn_fsx_username
-  ssm_param_arn_fsx_password      = local.ssm_param_arn_fsx_password
-  ssm_param_arn_fsx_ip_address    = local.ssm_param_arn_fsx_ip_address
-
-}
-
-locals {
-
-  userdata_shell_functions = templatefile("${path.module}/tpl/userdata.functions.tftpl", {})
-
-  fsx_config_command = templatefile("${path.module}/tpl/fsx-config.cmd.tftpl", {
-    fsx_mount_point = var.fsx_mount_point
-    sftp_users      = local.sftp_users
-    sftp_uid_start  = var.sftp_uid_start
-  })
-
-  fsx_get_creds_command = templatefile("${path.module}/tpl/fsx-get-creds.cmd.tftpl", {
-    fsx_creds_path         = var.fsx_creds_path
-    fsx_ssm_param_domain   = local.fsx_ssm_param_domain
-    fsx_ssm_param_username = local.fsx_ssm_param_username
-    fsx_ssm_param_password = local.fsx_ssm_param_password
-  })
-
-  fsx_mount_command = templatefile("${path.module}/tpl/fsx-mount.cmd.tftpl", {
-    sftp_users               = local.sftp_users
-    sftp_uid_start           = var.sftp_uid_start
-    fsx_ssm_param_ip_address = local.fsx_ssm_param_ip_address
-    fsx_file_share           = var.fsx_file_share
-    fsx_mount_point          = var.fsx_mount_point
-    fsx_smb_version          = var.fsx_smb_version
-    fsx_cifs_max_buf_size    = var.fsx_cifs_max_buf_size
-    fsx_creds_path           = var.fsx_creds_path
-  })
-
-}
-
 resource "aws_launch_template" "this" {
   name                   = "ecs-${var.cluster_name}"
   description            = "Launch template for ECS cluster ${var.cluster_name}"
@@ -135,13 +51,7 @@ resource "aws_launch_template" "this" {
     name = local.create_instance_role ? module.iam.instance_profile.name : var.instance_role_name
   }
 
-  user_data = base64encode(templatefile("${path.module}/tpl/userdata.tftpl", {
-    cluster_name          = var.cluster_name
-    shell_functions       = local.userdata_shell_functions
-    fsx_config_command    = local.fsx_config_command
-    fsx_get_creds_command = local.fsx_get_creds_command
-    fsx_mount_command     = local.fsx_mount_command
-  }))
+  user_data = local.user_data
 
   tag_specifications {
     resource_type = "instance"

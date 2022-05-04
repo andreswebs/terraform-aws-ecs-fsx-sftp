@@ -274,3 +274,13 @@ variable "fsx_cifs_max_buf_size" {
   default     = "130048"
   description = "CIFS maximum buffer size; find it with the command: `modinfo cifs | grep`"
 }
+
+variable "script_s3_bucket" {
+  type        = string
+  description = "Name of an S3 bucket to store the FSx configuration script"
+}
+
+variable "script_s3_key" {
+  type = string
+  description = "fsx-config/configure-fsx.bash"
+}

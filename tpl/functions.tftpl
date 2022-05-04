@@ -1,0 +1,12 @@
+function get_param {
+  local NAME
+  NAME="$${1}"
+  AWS_PAGER="" \
+  /usr/local/bin/aws ssm get-parameter \
+    --name "$${NAME}" \
+    --with-decryption \
+    --query 'Parameter.Value' \
+    --output text | base64 --decode
+}
+
+export -f get_param
