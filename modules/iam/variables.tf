@@ -79,3 +79,14 @@ variable "create_instance_role" {
   default     = true
   description = "Create instance role?"
 }
+
+variable "script_s3_bucket_arn" {
+  type        = string
+  description = "ARN of the S3 bucket storing the FSx configuration script"
+}
+
+variable "script_s3_key" {
+  type        = string
+  description = "S3 object key for the FSx configuration script"
+  default     = "fsx-config/configure-fsx.bash"
+}

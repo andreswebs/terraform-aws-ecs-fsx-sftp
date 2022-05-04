@@ -37,7 +37,7 @@ locals {
   })
 
   run_fsx_config = templatefile("${path.module}/tpl/run-fsx-config.tftpl", {
-    script_s3_bucket  = var.script_s3_bucket
+    script_s3_bucket  = data.aws_s3_bucket.script.id
     script_s3_key     = var.script_s3_key
     script_file_local = "/usr/local/bin/configure-fsx"
   })
@@ -51,7 +51,7 @@ locals {
 }
 
 resource "aws_s3_object" "script_configure_fsx" {
-  bucket  = var.script_s3_bucket
+  bucket  = data.aws_s3_bucket.script.id
   key     = var.script_s3_key
   content = local.fsx_config_script
 }

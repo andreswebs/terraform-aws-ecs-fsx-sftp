@@ -281,6 +281,7 @@ variable "script_s3_bucket" {
 }
 
 variable "script_s3_key" {
-  type = string
-  description = "fsx-config/configure-fsx.bash"
+  type        = string
+  description = "S3 object key for the FSx configuration script"
+  default     = "fsx-config/configure-fsx.bash"
 }

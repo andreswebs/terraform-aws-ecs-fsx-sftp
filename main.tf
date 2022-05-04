@@ -15,6 +15,10 @@ data "aws_ami" "ecs_ami_latest" {
   owners = ["amazon"]
 }
 
+data "aws_s3_bucket" "script" {
+  bucket = var.script_s3_bucket
+}
+
 locals {
 
   sftp_users = split(",", var.sftp_users)

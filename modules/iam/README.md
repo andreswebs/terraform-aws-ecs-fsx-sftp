@@ -37,6 +37,8 @@ module "iam" {
 | <a name="input_execution_role_name"></a> [execution\_role\_name](#input\_execution\_role\_name) | ECS 'Task Execution Role' name | `string` | `"ecs-sftp-execution"` | no |
 | <a name="input_instance_profile_name"></a> [instance\_profile\_name](#input\_instance\_profile\_name) | ECS container instance profile name | `string` | `"ecs-sftp-instance"` | no |
 | <a name="input_instance_role_name"></a> [instance\_role\_name](#input\_instance\_role\_name) | ECS container instance role name | `string` | `"ecs-sftp-instance"` | no |
+| <a name="input_script_s3_bucket_arn"></a> [script\_s3\_bucket\_arn](#input\_script\_s3\_bucket\_arn) | ARN of the S3 bucket storing the FSx configuration script | `string` | n/a | yes |
+| <a name="input_script_s3_key"></a> [script\_s3\_key](#input\_script\_s3\_key) | S3 object key for the FSx configuration script | `string` | `"fsx-config/configure-fsx.bash"` | no |
 | <a name="input_ssm_param_arn_config_users_conf"></a> [ssm\_param\_arn\_config\_users\_conf](#input\_ssm\_param\_arn\_config\_users\_conf) | SSM parameter ARN for the `/etc/sftp/users.conf` file | `string` | n/a | yes |
 | <a name="input_ssm_param_arn_fsx_domain"></a> [ssm\_param\_arn\_fsx\_domain](#input\_ssm\_param\_arn\_fsx\_domain) | SSM parameter ARN for FSx Active Directory domain | `string` | n/a | yes |
 | <a name="input_ssm_param_arn_fsx_ip_address"></a> [ssm\_param\_arn\_fsx\_ip\_address](#input\_ssm\_param\_arn\_fsx\_ip\_address) | SSM parameter ARN for the FSx IP address | `string` | n/a | yes |
@@ -80,9 +82,11 @@ No modules.
 | [aws_iam_role.ecs_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.ecs_task](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.ecs_execution_permissions_sftp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.ecs_instance_access_script](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.ecs_instance_access_secrets_fsx](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.ecs_execution_role_sftp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.ecs_instance](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_policy_document.access_script](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.access_secrets_fsx](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.access_secrets_sftp](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.ec2_trust](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |

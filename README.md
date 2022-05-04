@@ -82,7 +82,7 @@ module "sftp" {
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | ECS container-instance type | `string` | `"t3a.micro"` | no |
 | <a name="input_log_retention_in_days"></a> [log\_retention\_in\_days](#input\_log\_retention\_in\_days) | CloudWatch Logs retention in days | `number` | `30` | no |
 | <a name="input_script_s3_bucket"></a> [script\_s3\_bucket](#input\_script\_s3\_bucket) | Name of an S3 bucket to store the FSx configuration script | `string` | n/a | yes |
-| <a name="input_script_s3_key"></a> [script\_s3\_key](#input\_script\_s3\_key) | fsx-config/configure-fsx.bash | `string` | n/a | yes |
+| <a name="input_script_s3_key"></a> [script\_s3\_key](#input\_script\_s3\_key) | S3 object key for the FSx configuration script | `string` | `"fsx-config/configure-fsx.bash"` | no |
 | <a name="input_sftp_config_container_image"></a> [sftp\_config\_container\_image](#input\_sftp\_config\_container\_image) | Config container image | `string` | `"bash:latest"` | no |
 | <a name="input_sftp_host_port"></a> [sftp\_host\_port](#input\_sftp\_host\_port) | Host port for SFTP access | `number` | `2222` | no |
 | <a name="input_sftp_main_container_image"></a> [sftp\_main\_container\_image](#input\_sftp\_main\_container\_image) | Main SFTP container image | `string` | `"atmoz/sftp:latest"` | no |
@@ -153,6 +153,7 @@ module "sftp" {
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+| [aws_s3_bucket.script](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/s3_bucket) | data source |
 
 [//]: # (END_TF_DOCS)
 

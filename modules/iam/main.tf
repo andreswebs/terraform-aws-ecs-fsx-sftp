@@ -154,3 +154,23 @@ resource "aws_iam_role_policy" "ecs_instance_access_secrets_fsx" {
   role   = aws_iam_role.ecs_instance[0].name
   policy = data.aws_iam_policy_document.access_secrets_fsx[0].json
 }
+
+data "aws_iam_policy_document" "access_script" {
+  count = var.create_instance_role ? 1 : 0
+  statement {
+    sid = "getobject"
+    actions = [
+      "s3:GetObject"
+    ]
+    resources = [
+      "${var.script_s3_bucket_arn}/${var.script_s3_key}"
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "ecs_instance_access_script" {
+  count  = var.create_instance_role ? 1 : 0
+  name   = "fsx-config-script"
+  role   = aws_iam_role.ecs_instance[0].name
+  policy = data.aws_iam_policy_document.access_script[0].json
+}

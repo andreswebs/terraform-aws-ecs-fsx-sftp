@@ -26,4 +26,7 @@ module "iam" {
   ssm_param_arn_fsx_password      = local.ssm_param_arn_fsx_password
   ssm_param_arn_fsx_ip_address    = local.ssm_param_arn_fsx_ip_address
 
+  script_s3_bucket_arn = data.aws_s3_bucket.script.arn
+  script_s3_key        = var.script_s3_key
+
 }
