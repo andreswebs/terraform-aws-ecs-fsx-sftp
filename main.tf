@@ -179,4 +179,14 @@ resource "aws_ecs_service" "this" {
 
   scheduling_strategy = "DAEMON"
 
+  dynamic "load_balancer" {
+    for_each = compact(var.target_group_arns)
+    iterator = target_group_arns
+    content {
+      target_group_arn = target_group_arns.value
+      container_name   = local.sftp_main_container_name
+      container_port   = var.sftp_task_port
+    }
+  }
+  
 }

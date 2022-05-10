@@ -101,6 +101,7 @@ module "sftp" {
 | <a name="input_sftp_volume_name_user"></a> [sftp\_volume\_name\_user](#input\_sftp\_volume\_name\_user) | SFTP user-volumes name prefix; user names will be added as suffixes | `string` | `"sftp-user"` | no |
 | <a name="input_ssh_key_name"></a> [ssh\_key\_name](#input\_ssh\_key\_name) | ECS container-instance SSH key-pair name; must be an existing key-pair | `string` | `null` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | Subnet IDs | `list(string)` | n/a | yes |
+| <a name="input_target_group_arns"></a> [target\_group\_arns](#input\_target\_group\_arns) | (Optional) ARNs of target groups to associate the main container | `list(string)` | `[]` | no |
 | <a name="input_task_role_arn"></a> [task\_role\_arn](#input\_task\_role\_arn) | ECS 'Task Role' ARN; overrides `task_role_name` | `string` | `null` | no |
 | <a name="input_task_role_name"></a> [task\_role\_name](#input\_task\_role\_name) | ECS 'Task Role' name; overriden by `task_role_arn` | `string` | `"ecs-task"` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | VPC ID | `string` | n/a | yes |

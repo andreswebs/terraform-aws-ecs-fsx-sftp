@@ -285,3 +285,9 @@ variable "script_s3_key" {
   description = "S3 object key for the FSx configuration script"
   default     = "fsx-config/configure-fsx.bash"
 }
+
+variable "target_group_arns" {
+  type        = list(string)
+  description = "(Optional) ARNs of target groups to associate the main container"
+  default     = []
+}
