@@ -1,11 +1,13 @@
 FSX_CREDS=${fsx_creds_path}
 
-mkdir -p $(dirname "$${FSX_CREDS}")
+mkdir -p "$(dirname $${FSX_CREDS})"
 
 FSX_DOMAIN=$(get_param ${fsx_ssm_param_domain})
 FSX_USERNAME=$(get_param ${fsx_ssm_param_username})
 FSX_PASSWORD=$(get_param ${fsx_ssm_param_password})
 
-echo "domain=$${FSX_DOMAIN}" >> $${FSX_CREDS}
-echo "username=$${FSX_USERNAME}" >> $${FSX_CREDS}
-echo "password=$${FSX_PASSWORD}" >> $${FSX_CREDS}
+{
+  echo "domain=$${FSX_DOMAIN}"
+  echo "username=$${FSX_USERNAME}"
+  echo "password=$${FSX_PASSWORD}"
+} >> $${FSX_CREDS}

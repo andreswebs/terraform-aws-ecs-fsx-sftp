@@ -115,48 +115,12 @@ resource "aws_ecs_cluster" "this" {
     value = "enabled"
   }
 
+}
+
+
+resource "aws_ecs_cluster_capacity_providers" "this" {
+  cluster_name       = aws_ecs_cluster.this.name
   capacity_providers = [aws_ecs_capacity_provider.this.name]
-
-  ## Bug (as of 2021-12-18): 
-  ## https://github.com/hashicorp/terraform-provider-aws/issues/11409
-  provisioner "local-exec" {
-    when = destroy
-
-    command = <<CMD
-      # Get the list of capacity providers associated with this cluster
-      CAP_PROVS="$(aws ecs describe-clusters --clusters "${self.arn}" \
-        --query 'clusters[*].capacityProviders[*]' --output text)"
-
-      # Now get the list of autoscaling groups from those capacity providers
-      ASG_ARNS="$(aws ecs describe-capacity-providers \
-        --capacity-providers "$CAP_PROVS" \
-        --query 'capacityProviders[*].autoScalingGroupProvider.autoScalingGroupArn' \
-        --output text)"
-
-      if [ -n "$ASG_ARNS" ] && [ "$ASG_ARNS" != "None" ]
-      then
-        for ASG_ARN in $ASG_ARNS
-        do
-          ASG_NAME=$(echo $ASG_ARN | cut -d/ -f2-)
-
-          # Remove scale-in protection from all instances in the asg
-          INSTANCES="$(aws autoscaling describe-auto-scaling-groups \
-            --auto-scaling-group-names "$ASG_NAME" \
-            --query 'AutoScalingGroups[*].Instances[*].InstanceId' \
-            --output text)"
-          aws autoscaling set-instance-protection --instance-ids $INSTANCES \
-            --auto-scaling-group-name "$ASG_NAME" \
-            --no-protected-from-scale-in
-
-          # Set the autoscaling group size to zero
-          aws autoscaling update-auto-scaling-group \
-            --auto-scaling-group-name "$ASG_NAME" \
-            --min-size 0 --max-size 0 --desired-capacity 0
-        done
-      fi
-    CMD
-  }
-
 }
 
 resource "aws_cloudwatch_log_group" "this" {
@@ -164,44 +128,6 @@ resource "aws_cloudwatch_log_group" "this" {
   retention_in_days = var.log_retention_in_days
 }
 
-locals {
-
-  sftp_config_secrets = templatefile("${path.module}/tpl/sftp-config-secrets.json.tftpl", {
-    ssm_param_arn_user_pub_key  = local.ssm_param_arn_user_pub_key
-    ssm_param_arn_host_pub_key  = local.ssm_param_arn_host_pub_key
-    ssm_param_arn_host_priv_key = local.ssm_param_arn_host_priv_key
-    ssm_param_arn_users_conf    = aws_ssm_parameter.sftp_config_users_conf.arn
-    sftp_users                  = local.sftp_users
-  })
-
-  sftp_config_command = templatefile("${path.module}/tpl/sftp-config-cmd.json.tftpl", {
-    volume_name_user    = var.sftp_volume_name_user
-    volume_name_host    = var.sftp_volume_name_host
-    volume_name_config  = var.sftp_volume_name_config
-    volume_name_scripts = var.sftp_volume_name_scripts
-    sftp_users          = local.sftp_users
-  })
-
-  sftp_container_definitions = templatefile("${path.module}/tpl/sftp-container-definitions.json.tftpl", {
-    aws_region             = data.aws_region.current.name
-    log_group_name         = aws_cloudwatch_log_group.this.name
-    main_container_name    = "sftp"
-    main_container_image   = var.sftp_main_container_image
-    config_container_name  = "sftp-config"
-    config_container_image = var.sftp_config_container_image
-    config_secrets         = local.sftp_config_secrets
-    config_command         = local.sftp_config_command
-    volume_name_storage    = var.sftp_volume_name_storage
-    volume_name_user       = var.sftp_volume_name_user
-    volume_name_host       = var.sftp_volume_name_host
-    volume_name_config     = var.sftp_volume_name_config
-    volume_name_scripts    = var.sftp_volume_name_scripts
-    task_port              = var.sftp_task_port
-    host_port              = var.sftp_host_port
-    sftp_users             = local.sftp_users
-  })
-
-}
 
 resource "aws_ecs_task_definition" "this" {
 

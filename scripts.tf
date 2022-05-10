@@ -28,7 +28,7 @@ locals {
     fsx_creds_path           = var.fsx_creds_path
   })
 
-  fsx_config_script = templatefile("${path.module}/tpl/fsx-config.bash.tftpl", {
+  fsx_config_script = templatefile("${path.module}/tpl/configure-fsx.bash.tftpl", {
     install_awscli        = local.install_awscli
     shell_functions       = local.shell_functions
     fsx_config_command    = local.fsx_config_command

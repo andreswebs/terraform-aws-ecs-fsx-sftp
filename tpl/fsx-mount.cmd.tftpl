@@ -4,8 +4,10 @@ cp /etc/fstab /etc/fstab.bak
 
 FSX_IP_ADDRESS=$(get_param ${fsx_ssm_param_ip_address})
 
+{
 %{ for user in sftp_users ~}
-echo "//$${FSX_IP_ADDRESS}/${fsx_file_share} ${fsx_mount_point}/${user} cifs vers=${fsx_smb_version},sec=ntlmsspi,cred=${fsx_creds_path},rsize=${fsx_cifs_max_buf_size},wsize=${fsx_cifs_max_buf_size},cache=none,_netdev,uid=${sftp_uid_start + index(sftp_users, user)},gid=${sftp_uid_start + index(sftp_users, user)} 0 0" >> /etc/fstab
+  echo "//$${FSX_IP_ADDRESS}/${fsx_file_share} ${fsx_mount_point}/${user} cifs vers=${fsx_smb_version},sec=ntlmsspi,cred=${fsx_creds_path},rsize=${fsx_cifs_max_buf_size},wsize=${fsx_cifs_max_buf_size},cache=none,_netdev,uid=${sftp_uid_start + index(sftp_users, user)},gid=${sftp_uid_start + index(sftp_users, user)} 0 0"
 %{ endfor ~}
+} >> /etc/fstab
 
 mount -a

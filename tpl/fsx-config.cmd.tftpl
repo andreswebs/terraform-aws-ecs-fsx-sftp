@@ -1,6 +1,6 @@
 mkdir -p ${fsx_mount_point}
 
 %{ for user in sftp_users ~}
-mkdir ${fsx_mount_point}/${user}
+mkdir -p ${fsx_mount_point}/${user}
 chown -R ${sftp_uid_start + index(sftp_users, user)}:${sftp_uid_start + index(sftp_users, user)} ${fsx_mount_point}/${user}
 %{ endfor ~}
