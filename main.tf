@@ -126,7 +126,6 @@ resource "aws_cloudwatch_log_group" "this" {
   retention_in_days = var.log_retention_in_days
 }
 
-
 resource "aws_ecs_task_definition" "this" {
 
   family                   = "sftp"
@@ -176,15 +175,5 @@ resource "aws_ecs_service" "this" {
   enable_execute_command  = true
 
   scheduling_strategy = "DAEMON"
-
-  dynamic "load_balancer" {
-    for_each = compact(var.target_group_arns)
-    iterator = target_group_arns
-    content {
-      target_group_arn = target_group_arns.value
-      container_name   = local.sftp_main_container_name
-      container_port   = var.sftp_task_port
-    }
-  }
 
 }
