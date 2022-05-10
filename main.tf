@@ -122,7 +122,7 @@ resource "aws_ecs_cluster_capacity_providers" "this" {
 }
 
 resource "aws_cloudwatch_log_group" "this" {
-  name              = "/ecs/${var.cluster_name}"
+  name              = "/aws/ecs/${var.cluster_name}"
   retention_in_days = var.log_retention_in_days
 }
 
