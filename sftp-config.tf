@@ -8,7 +8,7 @@ locals {
     ssm_param_arn_host_pub_key  = local.ssm_param_arn_host_pub_key
     ssm_param_arn_host_priv_key = local.ssm_param_arn_host_priv_key
     ssm_param_arn_users_conf    = aws_ssm_parameter.sftp_config_users_conf.arn
-    sftp_users                  = local.sftp_users
+    sftp_users                  = var.sftp_users
   })
 
   sftp_config_command = templatefile("${path.module}/tpl/sftp-config-cmd.json.tftpl", {
@@ -16,7 +16,7 @@ locals {
     volume_name_host    = var.sftp_volume_name_host
     volume_name_config  = var.sftp_volume_name_config
     volume_name_scripts = var.sftp_volume_name_scripts
-    sftp_users          = local.sftp_users
+    sftp_users          = var.sftp_users
   })
 
   sftp_container_definitions = templatefile("${path.module}/tpl/sftp-container-definitions.json.tftpl", {
@@ -35,7 +35,7 @@ locals {
     volume_name_scripts    = var.sftp_volume_name_scripts
     task_port              = var.sftp_task_port
     host_port              = var.sftp_host_port
-    sftp_users             = local.sftp_users
+    sftp_users             = var.sftp_users
   })
 
 }

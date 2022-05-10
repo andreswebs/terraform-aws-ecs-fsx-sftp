@@ -7,7 +7,7 @@ locals {
   fsx_config_command = templatefile("${path.module}/tpl/fsx-config.cmd.tftpl", {
     fsx_mount_point = var.fsx_mount_point
     sftp_uid_start  = var.sftp_uid_start
-    sftp_users      = local.sftp_users
+    sftp_users      = var.sftp_users
   })
 
   fsx_get_creds_command = templatefile("${path.module}/tpl/fsx-get-creds.cmd.tftpl", {
@@ -19,7 +19,7 @@ locals {
 
   fsx_mount_command = templatefile("${path.module}/tpl/fsx-mount.cmd.tftpl", {
     sftp_uid_start           = var.sftp_uid_start
-    sftp_users               = local.sftp_users
+    sftp_users               = var.sftp_users
     fsx_ssm_param_ip_address = local.fsx_ssm_param_ip_address
     fsx_file_share           = var.fsx_file_share
     fsx_mount_point          = var.fsx_mount_point

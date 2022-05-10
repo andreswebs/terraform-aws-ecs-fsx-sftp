@@ -154,13 +154,14 @@ variable "sftp_ssm_param_config_users_conf" {
 
 variable "sftp_uid_start" {
   type        = number
-  default     = 1001
+  default     = 2001
   description = "Starting Unix UID for SFTP users; will be incremented by 1 for each extra user"
 }
 
 variable "sftp_users" {
-  type        = string
-  description = "Comma-separated list of SFTP users to add"
+  type        = list(string)
+  description = "List of SFTP users to add"
+  default     = ["sftp-user"]
 }
 
 variable "sftp_volume_name_storage" {

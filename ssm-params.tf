@@ -28,7 +28,7 @@ resource "aws_ssm_parameter" "sftp_config_users_conf" {
   overwrite = true
 
   value = base64encode(templatefile("${path.module}/tpl/users.conf.tftpl", {
-    sftp_users     = local.sftp_users
+    sftp_users     = var.sftp_users
     sftp_uid_start = var.sftp_uid_start
   }))
 

@@ -46,8 +46,8 @@ module "sftp" {
   vpc_id         = var.vpc_id
   subnet_ids     = var.subnet_ids
   cidr_whitelist = [var.corp_vpn]
-  sftp_users     = "user-1,user-2,user-3"
-  sftp_uid_start = 1001
+  sftp_users     = ["user-1", "user-2", "user-3"]
+  sftp_uid_start = 2001
 }
 ```
 
@@ -92,8 +92,8 @@ module "sftp" {
 | <a name="input_sftp_ssm_param_prefix"></a> [sftp\_ssm\_param\_prefix](#input\_sftp\_ssm\_param\_prefix) | Prefix for SSM parameters used for SFTP configuration | `string` | `"/sftp"` | no |
 | <a name="input_sftp_ssm_param_user_pub_key"></a> [sftp\_ssm\_param\_user\_pub\_key](#input\_sftp\_ssm\_param\_user\_pub\_key) | SSM param path for users' public keys | `string` | `"/user/public-key"` | no |
 | <a name="input_sftp_task_port"></a> [sftp\_task\_port](#input\_sftp\_task\_port) | ECS task port for SFTP access | `number` | `22` | no |
-| <a name="input_sftp_uid_start"></a> [sftp\_uid\_start](#input\_sftp\_uid\_start) | Starting Unix UID for SFTP users; will be incremented by 1 for each extra user | `number` | `1001` | no |
-| <a name="input_sftp_users"></a> [sftp\_users](#input\_sftp\_users) | Comma-separated list of SFTP users to add | `string` | n/a | yes |
+| <a name="input_sftp_uid_start"></a> [sftp\_uid\_start](#input\_sftp\_uid\_start) | Starting Unix UID for SFTP users; will be incremented by 1 for each extra user | `number` | `2001` | no |
+| <a name="input_sftp_users"></a> [sftp\_users](#input\_sftp\_users) | List of SFTP users to add | `list(string)` | <pre>[<br>  "sftp-user"<br>]</pre> | no |
 | <a name="input_sftp_volume_name_config"></a> [sftp\_volume\_name\_config](#input\_sftp\_volume\_name\_config) | SFTP config-volume name | `string` | `"sftp-config"` | no |
 | <a name="input_sftp_volume_name_host"></a> [sftp\_volume\_name\_host](#input\_sftp\_volume\_name\_host) | SFTP host-volume name | `string` | `"sftp-host"` | no |
 | <a name="input_sftp_volume_name_scripts"></a> [sftp\_volume\_name\_scripts](#input\_sftp\_volume\_name\_scripts) | SFTP scripts-volume name | `string` | `"sftp-scripts"` | no |

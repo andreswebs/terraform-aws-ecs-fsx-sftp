@@ -21,8 +21,6 @@ data "aws_s3_bucket" "script" {
 
 locals {
 
-  sftp_users = split(",", var.sftp_users)
-
   ecs_security_group_ids = [
     aws_security_group.internal.id,
     aws_security_group.egress.id,
@@ -139,7 +137,7 @@ resource "aws_ecs_task_definition" "this" {
   container_definitions    = local.sftp_container_definitions
 
   dynamic "volume" {
-    for_each = local.sftp_users
+    for_each = var.sftp_users
     iterator = user
     content {
       name      = "${var.sftp_volume_name_storage}-${user.value}"
@@ -148,7 +146,7 @@ resource "aws_ecs_task_definition" "this" {
   }
 
   dynamic "volume" {
-    for_each = local.sftp_users
+    for_each = var.sftp_users
     iterator = user
     content {
       name = "${var.sftp_volume_name_user}-${user.value}"
@@ -188,5 +186,5 @@ resource "aws_ecs_service" "this" {
       container_port   = var.sftp_task_port
     }
   }
-  
+
 }
