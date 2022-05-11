@@ -242,7 +242,7 @@ variable "fsx_ssm_param_ip_address" {
 
 variable "fsx_creds_path" {
   type        = string
-  default     = "/home/ec2-user/.fsx-credentials"
+  default     = "/etc/fsx/credentials"
   description = "FSx credentials filesystem path"
 }
 
