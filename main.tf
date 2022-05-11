@@ -88,6 +88,13 @@ resource "aws_autoscaling_group" "this" {
     propagate_at_launch = true
   }
 
+  lifecycle {
+    ignore_changes = [
+      load_balancers,
+      target_group_arns,
+    ]
+  }
+
 }
 
 resource "aws_ecs_capacity_provider" "this" {
